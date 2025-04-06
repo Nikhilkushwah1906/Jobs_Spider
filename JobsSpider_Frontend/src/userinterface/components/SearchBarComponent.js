@@ -16,30 +16,52 @@ import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useNavigate } from "react-router-dom";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { getData } from "../../services/FetchNodeServices";
 
-export default function SearchBarComponent({ param_skill }) {
+export default function SearchBarComponent({
+  param_skill,
+  refresh,
+  setRefresh,
+  exp,
+  setExp
+}) {
   // console.log("HOME SKILL:", param_skill);
   const theme = useTheme();
- 
+
   const matches = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
-  const [skill, setSkill] = useState({ skillid: 0,categoryid:0,subcategoryid:0,skills: "" });
-  const [topSkill,setTopSkill]=useState([])
-  const fetchAllSkill=async()=>{
-    var res=await getData('userinterface/fetch_all_skills')
-    setTopSkill(res.data)
+  const [skill, setSkill] = useState({
+    skillid: 0,
+    categoryid: 0,
+    subcategoryid: 0,
+    skills: "",
+  });
+  const [topSkill, setTopSkill] = useState([]);
+  const [expr, setExpr]= useState(0)
 
-  }
- useEffect(function(){
-fetchAllSkill()
 
- },[])
+  const fetchAllSkill = async () => {
+    var res = await getData("userinterface/fetch_all_skills");
+    setTopSkill(res.data);
+  };
+  useEffect(function () {
+    fetchAllSkill();
+  }, []);
   const handleSearch = () => {
     //navigate("/searchjobs",{state:{skill:skill}})
+    var tskill = skill
+    if(exp==undefined){
+      tskill['exp']=expr
+    }
+    else {
+      tskill['exp']=exp
+    }
     const queryString = new URLSearchParams(skill).toString();
     navigate(`/searchjobs?${queryString}`);
+    try {
+      setRefresh(!refresh);
+    } catch (e) {}
   };
   // const topSkill = [
   //   { Skillid: 1, Skill: "MERN" },
@@ -54,17 +76,18 @@ fetchAllSkill()
   // ];
 
   const experience = [
-    { expid: 1, exp: "Fresher" },
-    { expid: 2, exp: "1 year" },
-    { expid: 3, exp: "2 years" },
-    { expid: 4, exp: "3 years" },
-    { expid: 5, exp: "4 years" },
-    { expid: 6, exp: "5 years" },
-    { expid: 7, exp: "6 years" },
-    { expid: 8, exp: "7 years" },
-    { expid: 9, exp: "8 years" },
-    { expid: 10, exp: "9+ years" },
+    { expid: 0, exp: "Fresher" },
+    { expid: 1, exp: "1 year" },
+    { expid: 2, exp: "2 years" },
+    { expid: 3, exp: "3 years" },
+    { expid: 4, exp: "4 years" },
+    { expid: 5, exp: "5 years" },
+    { expid: 6, exp: "6 years" },
+    { expid: 7, exp: "7 years" },
+    { expid: 8, exp: "8 years" },
+    { expid: 9, exp: "9+ years" },
   ];
+  // alert(JSON.stringify(experience[exp]))
 
   const worklocation = [
     { cityid: 1, cityname: "Mumbai" },
@@ -119,7 +142,7 @@ fetchAllSkill()
           options={topSkill}
           onChange={(event, newValue) => {
             setSkill(newValue);
-          }} 
+          }}
           PopperComponent={CustomPopper}
           autoHighlight
           getOptionLabel={(option) => option.skills}
@@ -168,6 +191,16 @@ fetchAllSkill()
         <Autocomplete
           sx={{ flexGrow: 1 }}
           options={experience}
+          value={experience[exp]}
+          onChange={(event, newValue) => {
+              
+              try{
+                setExp(newValue.expid);
+              }
+              catch(e){
+                setExpr(newValue.expid)
+              }
+          }}
           PopperComponent={CustomPopper}
           autoHighlight
           getOptionLabel={(option) => option.exp}
@@ -188,15 +221,15 @@ fetchAllSkill()
           renderInput={(params) => (
             <TextField
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    border: 'none',
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    border: "none",
                   },
-                  '&:hover fieldset': {
-                    border: 'none',
+                  "&:hover fieldset": {
+                    border: "none",
                   },
-                  '&.Mui-focused fieldset': {
-                    border: 'none',
+                  "&.Mui-focused fieldset": {
+                    border: "none",
                   },
                 },
                 "& .MuiInputBase-input": {
@@ -247,15 +280,15 @@ fetchAllSkill()
             <TextField
               {...params}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    border: 'none',
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    border: "none",
                   },
-                  '&:hover fieldset': {
-                    border: 'none',
+                  "&:hover fieldset": {
+                    border: "none",
                   },
-                  '&.Mui-focused fieldset': {
-                    border: 'none',
+                  "&.Mui-focused fieldset": {
+                    border: "none",
                   },
                 },
                 "& .MuiInputBase-input": {

@@ -547,16 +547,11 @@ export default function CompanyJobs() {
                 <MenuItem value={"More Than 10 Years"}>
                   More Than 10 Years
                 </MenuItem>
-                <MenuItem value={"Entry Level"}>Entry Level</MenuItem>
-                <MenuItem value={"Mid Level"}>Mid Level</MenuItem>
-                <MenuItem value={"Senior Level"}>Senior Level</MenuItem>
-                <MenuItem value={"Freshers"}>Freshers</MenuItem>
-                <MenuItem value={"2-5 Years"}>2-5 Years</MenuItem>
-                <MenuItem value={"1-2 Years"}>1-2 Years</MenuItem>
-                <MenuItem value={"5-10 Years"}>5-10 Years</MenuItem>
-                <MenuItem value={"Executive & Leadership"}>
-                  Executive & Leadership
-                </MenuItem>
+                <MenuItem value={"10"}>More than 10 year</MenuItem>
+                <MenuItem value={"5-10"}>5-10 year</MenuItem>
+                <MenuItem value={"2-5"}>2-5 year</MenuItem>
+                <MenuItem value={"1-2"}>1-2 year</MenuItem>
+                <MenuItem value={"0-1"}>Fresher</MenuItem>
               </Select>
               <div className={classes.helperTextStyle}>
                 {formError.expereince}

@@ -16,34 +16,53 @@ import FilterMiddleComponent from "./FilterMiddleComponent";
 import FilterLastComponent from "./FilterLastComponent";
 import { useLocation, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getData ,postData} from "../../services/FetchNodeServices";
+import { getData, postData } from "../../services/FetchNodeServices";
+import SearchBarMob from "../components/SearchBarMob";
 
 export default function MainShowFilterJobsComponent() {
   const theme = useTheme();
-  const [jobs,setJobsList]=useState([])
+  const [jobs, setJobsList] = useState([]);
   const params = useParams();
-  
+  const [refresh, setRefresh] = useState(false);
+  // const[exp,setExp]=useState(0)
+
   const location = useLocation();
-  console.log(location.search);
   const keys = new URLSearchParams(location.search);
-  console.log("Keys:",keys)
+  // console.log("Keys:",keys)
 
   var skill = keys.get("skills");
   var skill_id = keys.get("skillid");
   var categoryid = keys.get("categoryid");
   var subcategoryid = keys.get("subcategoryid");
+  var expr = keys.get("exp");
+  const [exp, setExp] = useState(expr);
+  const [time, setTime] = useState("-1");
 
   const matches = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const fetchJobs = async()=>{
-    var res=await postData('userinterface/main_search_jobs',{ skills: skill, skillid: skill_id,categoryid,subcategoryid })
-  
-    setJobsList(res.data)
-   }
+  const fetchJobs = async () => {
+    var res = await postData("userinterface/main_search_jobs", {
+      skills: skill,
+      skillid: skill_id,
+      categoryid,
+      subcategoryid,
+      expr: exp,
+      time
+    });
 
-  useEffect(function(){ 
-    fetchJobs()
-  },[])
+    setJobsList(res.data);
+  };
+
+  useEffect(
+    function () {
+      setJobsList([]);
+      fetchJobs();
+    },
+    [refresh]
+  );
+  useEffect(function () {
+    fetchJobs();
+  }, []);
 
   return (
     <div
@@ -66,22 +85,38 @@ export default function MainShowFilterJobsComponent() {
           background: "rgb(244 242 246/var(--tw-bg-opacity,1))",
         }}
       >
-         <div style={{ marginLeft: matches ? 2 : 244, marginTop: 40 }}>
+        <div style={{ marginLeft: matches ? 2 : 244, marginTop: 40 }}>
           {matches ? (
             <></>
           ) : (
             <SearchBarComponent
-              param_skill={{ skills: skill, skillid: skill_id,categoryid,subcategoryid }}
+              param_skill={{
+                skills: skill,
+                skillid: skill_id,
+                categoryid,
+                subcategoryid,
+              }}
+              refresh={refresh}
+              setRefresh={setRefresh}
+              exp={exp}
+              setExp={setExp}
             />
           )}
-          {/* {matches ? (
+          {matches ? (
             <SearchBarMob
-              param_skill={{ skills: skill, skillid: skill_id,categoryid,subcategoryid }}
+              param_skill={{
+                skills: skill,
+                skillid: skill_id,
+                categoryid,
+                subcategoryid,
+              }}
               style={{ zIndex: 1 }}
+              refresh={refresh}
+              setRefresh={setRefresh}
             />
           ) : (
             <></>
-          )} */}
+          )}
         </div>
 
         <div
@@ -103,10 +138,19 @@ export default function MainShowFilterJobsComponent() {
             flexDirection: matches ? "column" : "row",
             justifyContent: "center",
             alignItems: matches ? "center" : "",
-            padding:14,
+            padding: 14,
           }}
         >
-          {matches ? <></> : <FirstFilterComponent />}
+          {matches ? (
+            <></>
+          ) : (
+            <FirstFilterComponent
+              exp={exp}
+              setExp={setExp}
+              time={time}
+              setTime={setTime}
+            />
+          )}
 
           <FilterMiddleComponent jobData={jobs} />
 

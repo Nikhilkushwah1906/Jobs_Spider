@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from "react";
 import {
   TextField,
   Button,
@@ -12,29 +12,71 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import WorkOutlineOutlinedIcon from "@mui/icons-material/WorkOutlineOutlined";
 import RoomOutlinedIcon from "@mui/icons-material/RoomOutlined";
-import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
-import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined';
+import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
+import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import Header from './Header';
+import Header from "./Header";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getData } from "../../services/FetchNodeServices";
 
-export default function SearchBarMob2() {
-  
+export default function SearchBarMob2({
+  param_skill,
+  refresh,
+  setRefresh,
+  exp,
+  setExp}) {
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
+  const [expr, setExpr]= useState(0)
+  const [skill, setSkill] = useState({
+    skillid: 0,
+    categoryid: 0,
+    subcategoryid: 0,
+    skills: "",
+  });
+  const [topSkill, setTopSkill] = useState([]);
+  const fetchAllSkill = async () => {
+    var res = await getData("userinterface/fetch_all_skills");
+    setTopSkill(res.data);
+  };
+  useEffect(function () {
+    fetchAllSkill();
+  }, []);
+  const handleSearch = () => {
+    //navigate("/searchjobs",{state:{skill:skill}})
+    // const queryString = new URLSearchParams(skill).toString();
+    // navigate(`/searchjobs?${queryString}`);
+    // try{setRefresh(!refresh)}catch(e){}
+       //navigate("/searchjobs",{state:{skill:skill}})
+       var tskill = skill
+       if(exp==undefined){
+         tskill['exp']=expr
+       }
+       else {
+         tskill['exp']=exp
+       }
+       const queryString = new URLSearchParams(skill).toString();
+       navigate(`/searchjobs?${queryString}`);
+       try {
+         setRefresh(!refresh);
+       } catch (e) {}
+  };
 
-  const topSkill = [
-    { Skillid: 1, Skill: 'MERN' },
-    { Skillid: 2, Skill: 'Node.js' },
-    { Skillid: 3, Skill: 'React.js' },
-    { Skillid: 4, Skill: 'Angular' },
-    { Skillid: 5, Skill: 'Vue.js' },
-    { Skillid: 6, Skill: 'Python' },
-    { Skillid: 7, Skill: 'Django' },
-    { Skillid: 8, Skill: 'Ruby on Rails' },
-    { Skillid: 9, Skill: 'Java' },
-  ];
-  
+  // const topSkill = [
+  //   { Skillid: 1, Skill: 'MERN' },
+  //   { Skillid: 2, Skill: 'Node.js' },
+  //   { Skillid: 3, Skill: 'React.js' },
+  //   { Skillid: 4, Skill: 'Angular' },
+  //   { Skillid: 5, Skill: 'Vue.js' },
+  //   { Skillid: 6, Skill: 'Python' },
+  //   { Skillid: 7, Skill: 'Django' },
+  //   { Skillid: 8, Skill: 'Ruby on Rails' },
+  //   { Skillid: 9, Skill: 'Java' },
+  // ];
+
   const experience = [
     { expid: 1, exp: "Fresher" },
     { expid: 2, exp: "1 year" },
@@ -68,7 +110,6 @@ export default function SearchBarMob2() {
           name: "offset",
           options: {
             offset: [0, 10],
-            
           },
         },
       ]}
@@ -83,33 +124,35 @@ export default function SearchBarMob2() {
 
   return (
     <div>
-    <div>
+      <div>
         <Header />
-    </div>
-    <div style={{background:'#f4f2f6', padding :"15px", }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent:"flex-start",
-          flexDirection:'column',
-          backgroundColor: "white",
-          padding: "10px 10px",
-          borderRadius: "8px",
-          gap: "10px",
-        }}
-      >
-        <div style={{width:'100%'}}>
-
-        
-        {/* Skill Autocomplete */}
-        <Autocomplete
+      </div>
+      <div style={{ background: "#f4f2f6", padding: "15px" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            flexDirection: "column",
+            backgroundColor: "white",
+            padding: "10px 10px",
+            borderRadius: "8px",
+            gap: "10px",
+          }}
+        >
+          <div style={{ width: "100%" }}>
+            {/* Skill Autocomplete */}
+            <Autocomplete
           fullWidth
-          sx={{ flex: 1}}
+          value={param_skill == undefined ? skill : param_skill}
+          sx={{ flex: 1 }}
           options={topSkill}
+          onChange={(event, newValue) => {
+            setSkill(newValue);
+          }}
           PopperComponent={CustomPopper}
           autoHighlight
-          getOptionLabel={(option) => option.Skill}
+          getOptionLabel={(option) => option.skills}
           renderOption={(props, option) => (
             <Box
               component="li"
@@ -121,62 +164,52 @@ export default function SearchBarMob2() {
               }}
             >
               <SearchIcon sx={{ color: "#8395a7" }} />
-              {option.Skill}
+              {option.skills}
             </Box>
           )}
-          
           renderInput={(params) => (
-
             <TextField
-            
               {...params}
-       
               sx={{
-              
-                // '& .MuiOutlinedInput-root': {
-                //   '& fieldset': {
-                //     border: 'none',  
-                //   },
-                //   '&:hover fieldset': {
-                //     border: 'none', 
-                //   },
-                //   '&.Mui-focused fieldset': {
-                //     border: 'none',  
-                //   },
-                // },
-                '& .MuiInputBase-input': {
-                  outline: 'none', 
-                  fontSize: '14px',
+                "& .MuiInputBase-input": {
+                  outline: "none",
+                  fontSize: "14px",
                 },
               }}
-
-              overflow='none'
+              overflow="none"
               placeholder="Select a skill"
               variant="standard"
               InputProps={{
                 ...params.InputProps,
                 disableUnderline: true,
-              
+
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon sx={{fontSize:15}} />
+                    <SearchIcon sx={{ fontSize: 15 }} />
                   </InputAdornment>
                 ),
-
               }}
-             
             />
           )}
         />
+          </div>
+          <Divider orientation="vertical" flexItem />
 
-</div>
-       <Divider orientation="vertical" flexItem />
-       
-       <div  style={{width:'100%'}}>
-        {/* Experience Autocomplete */}
-        <Autocomplete
-          sx={{flexGrow:1 }}
+          <div style={{ width: "100%" }}>
+            {/* Experience Autocomplete */}
+            <Autocomplete
+          sx={{ flexGrow: 1 }}
           options={experience}
+          value={experience[exp]}
+          onChange={(event, newValue) => {
+              
+              try{
+                setExp(newValue.expid);
+              }
+              catch(e){
+                setExpr(newValue.expid)
+              }
+          }}
           PopperComponent={CustomPopper}
           autoHighlight
           getOptionLabel={(option) => option.exp}
@@ -192,31 +225,29 @@ export default function SearchBarMob2() {
             >
               <WorkOutlineOutlinedIcon sx={{ color: "#8395a7" }} />
               {option.exp}
-              </Box>
+            </Box>
           )}
           renderInput={(params) => (
             <TextField
-
-            sx={{
-              
-              // '& .MuiOutlinedInput-root': {
-              //   '& fieldset': {
-              //     border: 'none',  
-              //   },
-              //   '&:hover fieldset': {
-              //     border: 'none', 
-              //   },
-              //   '&.Mui-focused fieldset': {
-              //     border: 'none',  
-              //   },
-              // },
-              '& .MuiInputBase-input': {
-                outline: 'none', 
-                fontSize: '14px',
-              },
-            }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    border: "none",
+                  },
+                  "&:hover fieldset": {
+                    border: "none",
+                  },
+                  "&.Mui-focused fieldset": {
+                    border: "none",
+                  },
+                },
+                "& .MuiInputBase-input": {
+                  outline: "none",
+                  fontSize: "14px",
+                },
+              }}
               {...params}
-              overflow='none'
+              overflow="none"
               placeholder="Select experience"
               variant="standard"
               InputProps={{
@@ -225,109 +256,99 @@ export default function SearchBarMob2() {
 
                 startAdornment: (
                   <InputAdornment position="start">
-                    <WorkOutlineIcon  sx={{fontSize:15}}/>
+                    <WorkOutlineIcon sx={{ fontSize: 15 }} />
                   </InputAdornment>
                 ),
               }}
-              
             />
           )}
         />
-       
-       </div>
+          </div>
 
-       <div style={{width:'100%'}}>
-        {/* Location Autocomplete */}
-   
-        <Autocomplete
-          sx={{ flexGrow:1}}
-          options={worklocation}
-          PopperComponent={CustomPopper}
-          autoHighlight
-          getOptionLabel={(option) => option.cityname}
-          renderOption={(props, option) => (
-            <Box
-              component="li"
-              {...props}
+          <div style={{ width: "100%" }}>
+            {/* Location Autocomplete */}
+
+            <Autocomplete
+              sx={{ flexGrow: 1 }}
+              options={worklocation}
+              PopperComponent={CustomPopper}
+              autoHighlight
+              getOptionLabel={(option) => option.cityname}
+              renderOption={(props, option) => (
+                <Box
+                  component="li"
+                  {...props}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                >
+                  <RoomOutlinedIcon sx={{ color: "#8395a7" }} />
+                  {option.cityname}
+                </Box>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  sx={{
+                    // '& .MuiOutlinedInput-root': {
+                    //   '& fieldset': {
+                    //     border: 'none',
+                    //   },
+                    //   '&:hover fieldset': {
+                    //     border: 'none',
+                    //   },
+                    //   '&.Mui-focused fieldset': {
+                    //     border: 'none',
+                    //   },
+                    // },
+                    "& .MuiInputBase-input": {
+                      outline: "none",
+                      fontSize: "14px",
+                    },
+                  }}
+                  overflow="none"
+                  placeholder="Search for an area or city"
+                  variant="standard"
+                  InputProps={{
+                    ...params.InputProps,
+                    disableUnderline: true,
+
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PlaceOutlinedIcon sx={{ fontSize: 15 }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
+            />
+          </div>
+
+          <div style={{ width: "100%" }}>
+            {/* Search Button */}
+            <Button
+              fullWidth
               sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
+                width: "100%",
+                textTransform: "capitalize",
+                fontSize: 14,
+                padding: "5px 10px 5px 10px",
+                fontWeight: "bold",
+                backgroundColor: "#b42f6b",
+                color: "#fff",
+                height: "40px",
+                borderRadius: "5px",
+                "&:hover": { backgroundColor: "#e6496e" },
               }}
+              onClick={handleSearch}
             >
-              <RoomOutlinedIcon sx={{ color: "#8395a7" }} />
-              {option.cityname}
-            </Box>
-          )}
-          renderInput={(params) => (
-            <TextField 
-              {...params}
-   
-              sx={{
-              
-                // '& .MuiOutlinedInput-root': {
-                //   '& fieldset': {
-                //     border: 'none',  
-                //   },
-                //   '&:hover fieldset': {
-                //     border: 'none', 
-                //   },
-                //   '&.Mui-focused fieldset': {
-                //     border: 'none',  
-                //   },
-                // },
-                '& .MuiInputBase-input': {
-                  outline: 'none', 
-                  fontSize: '14px',
-                },
-              }}
-
-               overflow='none'
-              placeholder='Search for an area or city'
-              variant="standard"
-              InputProps={{
-                ...params.InputProps,
-                disableUnderline: true,
-
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PlaceOutlinedIcon sx={{fontSize:15}} />
-                  </InputAdornment>
-                ), 
-              }}
-              
-            />
-          )}
-        />
-        </div>
-
-
-        <div style={{width:'100%'}}>
-
-       
-        {/* Search Button */}
-        <Button
-        fullWidth
-          sx={{
-            width:'100%',
-            textTransform: "capitalize",
-            fontSize: 14,
-            padding:'5px 10px 5px 10px',
-            fontWeight: "bold",
-            backgroundColor: "#b42f6b",
-            color: "#fff",
-            height: "40px",
-            borderRadius: "5px",
-            "&:hover": { backgroundColor: "#e6496e" },
-          }}
-        >
-          Search jobs
-        </Button>
+              Search jobs
+            </Button>
+          </div>
         </div>
       </div>
     </div>
-    </div>
   );
 }
-
-

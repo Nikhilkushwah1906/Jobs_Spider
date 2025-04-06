@@ -63,7 +63,7 @@ export default function LoginPage(props) {
 
   const handleSubmit = async () => {
     var response = await postData("admin/check_admin", { emailid, password });
-    console.log(response.status, "asdfg");
+    // console.log(response.status, "asdfg");
     if (response.status) {
       localStorage.setItem("ADMIN",JSON.stringify(response.data))
       navigate("/dashboardadmin");
@@ -78,7 +78,7 @@ export default function LoginPage(props) {
   };
 
   return (
-    <div>
+    <div style={{background:"#dff9fb"}}>
       <CssBaseline enableColorScheme />
       <SignInContainer direction="column" justifyContent="space-between">
         <Card variant="outlined">
